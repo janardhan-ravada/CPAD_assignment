@@ -1,0 +1,166 @@
+
+
+
+
+
+CREATE TABLE `users` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `email` varchar(255) NOT NULL,
+  `email_verified` bit(1) NOT NULL,
+  `image_url` varchar(255) DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `provider` varchar(255) NOT NULL,
+  `provider_id` varchar(255) DEFAULT NULL,
+  `user_type` varchar(256) DEFAULT NULL,
+  `consumer_id` bigint DEFAULT NULL,
+  `farmer_id` bigint DEFAULT NULL,
+  `emailVerified` bit(1) NOT NULL,
+  `imageUrl` varchar(255) DEFAULT NULL,
+  `providerId` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK6dotkott2kjsp8vw4d0m25fb7` (`email`),
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+CREATE TABLE `consumer` (
+  `id` bigint NOT NULL,
+  `name` varchar(256) DEFAULT NULL,
+  `gender` varchar(45) DEFAULT NULL,
+  `date_of_birth` datetime DEFAULT NULL,
+  `user_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fb_consumer_user_idx` (`user_id`),
+  CONSTRAINT `fb_consumer_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
+CREATE TABLE `farmer` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) DEFAULT NULL,
+  `enterprise_name` varchar(45) DEFAULT NULL,
+  `gender` varchar(45) DEFAULT NULL,
+  `date_of_birth` datetime DEFAULT NULL,
+  `rating` double DEFAULT NULL,
+  `user_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_farmer_users` (`user_id`),
+  CONSTRAINT `fk_farmer_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
+CREATE TABLE `grain_type` (
+  `id` bigint NOT NULL,
+  `name` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+CREATE TABLE `hibernate_sequence` (
+  `next_val` bigint DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `address` (
+  `id` bigint NOT NULL,
+  `house_number` varchar(45) DEFAULT NULL,
+  `road` varchar(45) DEFAULT NULL,
+  `street` varchar(45) DEFAULT NULL,
+  `area` varchar(45) DEFAULT NULL,
+  `mandal` varchar(45) DEFAULT NULL,
+  `district` varchar(45) DEFAULT NULL,
+  `state` varchar(45) DEFAULT NULL,
+  `pincode` varchar(45) DEFAULT NULL,
+  `land_mark` varchar(45) DEFAULT NULL,
+  `other_details` varchar(45) DEFAULT NULL,
+  `address_type` varchar(45) DEFAULT NULL,
+  `phone_number` varchar(45) DEFAULT NULL,
+  `alternative_number` varchar(45) DEFAULT NULL,
+  `preferred_timings` varchar(45) DEFAULT NULL,
+  `farmer_id` bigint DEFAULT NULL,
+  `consumer_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_farmer_address_idx` (`farmer_id`),
+  KEY `fk_consumer_address_idx` (`consumer_id`),
+  CONSTRAINT `fk_consumer_address` FOREIGN KEY (`consumer_id`) REFERENCES `consumer` (`id`),
+  CONSTRAINT `fk_farmer_address` FOREIGN KEY (`farmer_id`) REFERENCES `farmer` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
+
+
+CREATE TABLE `order` (
+  `id` bigint NOT NULL,
+  `consumer_id` bigint DEFAULT NULL,
+  `shipping_address_id` bigint DEFAULT NULL,
+  `billing_address_id` bigint DEFAULT NULL,
+  `status` varchar(45) DEFAULT NULL,
+  `total_price` double DEFAULT NULL,
+  `payment_method` varchar(256) DEFAULT NULL,
+  `is_amount_paid` tinyint DEFAULT NULL,
+  `total_price_with_discount` double DEFAULT NULL,
+  `created_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_order_consumer_idx` (`consumer_id`),
+  KEY `fk_order_shipping_address_idx` (`shipping_address_id`),
+  KEY `fk_order_billing_address_idx` (`billing_address_id`),
+  CONSTRAINT `fk_order_billing_address` FOREIGN KEY (`billing_address_id`) REFERENCES `address` (`id`),
+  CONSTRAINT `fk_order_consumer` FOREIGN KEY (`consumer_id`) REFERENCES `consumer` (`id`),
+  CONSTRAINT `fk_order_shipping_address` FOREIGN KEY (`shipping_address_id`) REFERENCES `address` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
+CREATE TABLE `product` (
+  `id` bigint NOT NULL,
+  `name` varchar(256) DEFAULT NULL,
+  `description` varchar(256) DEFAULT NULL,
+  `total_packs` bigint DEFAULT NULL,
+  `pack_unit` varchar(45) DEFAULT NULL,
+  `pack_price` double DEFAULT NULL,
+  `pack_quantity` double DEFAULT NULL,
+  `discount_on_pack` double DEFAULT NULL,
+  `grain_type_id` bigint DEFAULT NULL,
+  `farmer_id` bigint DEFAULT NULL,
+  `pack_price_with_disc` double DEFAULT NULL,
+  `total_packs_price` double DEFAULT NULL,
+  `total_packs_price_with_disc` double DEFAULT NULL,
+  `image_url` varchar(256) DEFAULT NULL,
+  `imageurl` varchar(255) DEFAULT NULL,
+  `remaining_packs` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_product_grain_type_idx` (`farmer_id`,`grain_type_id`),
+  KEY `fk_product_grain_type_idx1` (`grain_type_id`),
+  CONSTRAINT `fk_product_farmer` FOREIGN KEY (`farmer_id`) REFERENCES `farmer` (`id`),
+  CONSTRAINT `fk_product_grain_type` FOREIGN KEY (`grain_type_id`) REFERENCES `grain_type` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+CREATE TABLE `order_product` (
+  `id` bigint NOT NULL,
+  `order_id` bigint DEFAULT NULL,
+  `product_id` bigint DEFAULT NULL,
+  `ordered_quantity` bigint DEFAULT NULL,
+  `applied_discount` double DEFAULT NULL,
+  `applied_discount_type` varchar(45) DEFAULT NULL,
+  `pack_price_with_discount` double DEFAULT NULL,
+  `farmer_id` bigint DEFAULT NULL,
+  `pack_price` double DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_order_id_idx` (`order_id`),
+  KEY `fk_product_id_idx` (`product_id`),
+  KEY `fk_farmer_id_idx` (`farmer_id`),
+  CONSTRAINT `fk_farmer_id` FOREIGN KEY (`farmer_id`) REFERENCES `farmer` (`id`),
+  CONSTRAINT `fk_order_id` FOREIGN KEY (`order_id`) REFERENCES `order` (`id`),
+  CONSTRAINT `fk_product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`),
+  CONSTRAINT `FKb5ma91fqqtwnrkfwrb61w0dh8` FOREIGN KEY (`order_id`) REFERENCES `spring_social_order` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
