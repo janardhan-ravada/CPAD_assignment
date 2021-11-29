@@ -1,0 +1,27 @@
+package com.direct.from.form.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.direct.from.form.exception.ResourceNotFoundException;
+import com.direct.from.form.model.User;
+import com.direct.from.form.repository.UserRepository;
+import com.direct.from.form.security.CurrentUser;
+import com.direct.from.form.security.UserPrincipal;
+
+@RestController
+public class UserController {
+
+	@Autowired
+	private UserRepository userRepository;
+
+	@GetMapping("/user/me")
+	@PreAuthorize("hasRole('USER')")
+	public User getCurrentUser(@CurrentUser UserPrincipal userPrincipal) {
+		return userRepository.findById(userPrincipal.getId())
+				.orElseThrow(() -> new ResourceNotFoundException("User", "id", userPrincipal.getId()));
+	}
+
+}
